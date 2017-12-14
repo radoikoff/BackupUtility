@@ -13,8 +13,25 @@ namespace BackupUtil
     {
         static void Main(string[] args)
         {
-            string primaryFolder = @"C:\Users\vradoyko\Desktop\Test\Source";
-            string backupFolder = @"C:\Users\vradoyko\Desktop\Test";
+            //"C:\Users\vradoyko\Desktop\Test\Source1" "C:\Users\vradoyko\Desktop\Test"
+
+            var validator = new Validator(args);
+            if (validator.IsDataValid)
+            {
+                if ((int)DateTime.Now.DayOfWeek == validator.WeeklyTriggerDay)
+                {
+                    CreateWeeklyBackup(validator.PrimaryFolder, validator.BackupFolder);
+                }
+
+                if (DateTime.Now.Day == validator.MonthlyTriggerDay)
+                {
+                    RemoveOldWeeklyBackups(validator.BackupFolder);
+                }
+            }
+            else
+            {
+                Console.WriteLine(validator.ErrMessage);
+            }
         }
 
         private static void RemoveOldWeeklyBackups(string backupFolder)
@@ -30,11 +47,11 @@ namespace BackupUtil
                         try
                         {
                             File.Delete(Path.Combine(backupFolder, file));
-                            //msg
+                            WriteToOutput($"{Path.GetFileName(file)} sucessfuly deleted.");
                         }
-                        catch (Exception)
+                        catch (Exception ex)
                         {
-                            //msg
+                            WriteToOutput("Error. Cannot delete file: " + Path.GetFileName(file) + Environment.NewLine + ex.Message);
                         }
                     }
                 }
@@ -53,11 +70,11 @@ namespace BackupUtil
                     try
                     {
                         File.Copy(Path.Combine(primaryFolder, todayBackupFile), Path.Combine(backupFolder, todayBackupFile));
-                        //msg for sucess copy
+                        WriteToOutput($"{Path.GetFileName(todayBackupFile)} sucessfuly copied.");
                     }
-                    catch (Exception e)
+                    catch (Exception ex)
                     {
-                        //err msg
+                        WriteToOutput("Error. Cannot copy file: " + Path.GetFileName(todayBackupFile) + Environment.NewLine + ex.Message);
                     }
                 }
             }
@@ -90,6 +107,11 @@ namespace BackupUtil
             }
             return files;
         }
-        
+
+        private static void WriteToOutput(string message)
+        {
+            Console.WriteLine(DateTime.Now + " : " + message);
+        }
+
     }
 }
