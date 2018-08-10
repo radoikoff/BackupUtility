@@ -54,10 +54,26 @@ namespace BackupUtil
 
         private void Validate(string[] cmdArgs)
         {
+            if (cmdArgs.Count() == 0 || cmdArgs.Count() > 4)
+            {
+                this.isDataValid = false;
+                sb.AppendLine("Argument number is not correct. Use /? for more details.");
+            }
 
             if (cmdArgs.Count() == 1 && cmdArgs[0] == "/?")
             {
-                sb.AppendLine("Hints section");
+                sb.AppendLine("Performs weekly backup at given week day. At given day in the month delete all archvies keeping only the newest one for each month");
+                sb.AppendLine();
+                sb.AppendLine("BACKUPUTIL source destination [week day] [month day]");
+                sb.AppendLine();
+                sb.AppendLine("   source        Specifies folder in which source daily archives are stored");
+                sb.AppendLine("   destination   Specifies folder where weekly backups to be stored.");
+                sb.AppendLine("   [week day]    Week day at which current daily archive file to be copied.");
+                sb.AppendLine("                 Values: 0(Sunday) - 6(Saturday). Default: 0(Sunday).");
+                sb.AppendLine("   [month day]   Day in current month at which all old weekly archives will");
+                sb.AppendLine("                 be removed. Only the newest weekly archive will be kept.");
+                sb.AppendLine("                 Values: 1 - 31. Default: 31");
+                sb.AppendLine();
                 this.isDataValid = false;
             }
 
@@ -75,11 +91,6 @@ namespace BackupUtil
                 {
                     ValidateTrigerDay(cmdArgs[3], "Monthly");
                 }
-            }
-            else
-            {
-                this.isDataValid = false;
-                sb.AppendLine("Argument number is not correct");
             }
 
             this.errMessage = sb.ToString();
